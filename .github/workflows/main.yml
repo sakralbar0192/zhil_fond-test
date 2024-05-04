@@ -1,0 +1,34 @@
+name: linting, testing, building
+on: 
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    strategy: 
+      matrix: 
+        node-version: [ 20.x ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Starting Node.js version ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+            node-version: ${{ matrix.node-version }}
+      - name: Install modules
+        run: npm ci
+      - name: build production project
+        run: npm run build:prod
+        if: always()
+      - name: linting typescript
+        run: npm run lint:ts
+        if: always()
+      - name: linting styles
+        run: npm run lint:styles
+        if: always()
+      - name: unit testing
+        run: npm run test:unit
+        if: always()
+      - name: ui testing
+        run: npm run test:ui:ci
